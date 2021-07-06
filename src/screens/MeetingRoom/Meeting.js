@@ -88,7 +88,7 @@ class Meeting extends Component {
   };
 
   fetchProfile = () => {
-    let a = [];
+      let a = [];
     getProfile().then((data) => {
       a.push(data);
       a.forEach((element) => {

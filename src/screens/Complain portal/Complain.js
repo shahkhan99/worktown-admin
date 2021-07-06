@@ -1,240 +1,231 @@
 import React, {Component} from 'react';
 import {
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
   View,
   Text,
-  StyleSheet,
+  StatusBar,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  BackHandler,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
   Dimensions,
-  ScrollView,
-  RefreshControl,
-  Alert,
-  Pressable,
-  Button,
 } from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import Modal from 'react-native-modal';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-export default class Complain extends Component {
-  state = {
-    isModalVisible: false,
-    complaint: [
-      {
-        title: 'internet issue',
-        message1:
-          'afsfsakgasmlslgka;lgadg;la;glad;gld;akgangdanjdgngnjadngladnklgdamkadg',
-      },
-      {
-        title: 'internet issue',
-        message2:
-          'afsfsakgasmlslgka;lgadg;la;glad;gld;akgangdanjdgngnjadngladnklgdamkadg',
-      },
-      {
-        title: 'internet issue',
-        message3:
-          'afsfsakgasmlslgka;lgadg;la;glad;gld;akgangdanjdgngnjadngladnklgdamkadg',
-      },
-      {
-        title: 'internet issue',
-        message4:
-          'afsfsakgasmlslgka;lgadg;la;glad;gld;akgangdanjdgngnjadngladnklgdamkadg',
-      },
-    ],
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import ComplainPortalModal from '../../components/Modal/ComplainPortalModal/index';
+import Moment from 'moment';
+import {getComplain} from '../../backend/logic';
+import Loader from '../../components/Loader/loader';
+class ComplainPortal extends Component {
+  constructor(props) {
+    super(props);
+    this.fetchComplains = this.fetchComplains.bind(this);
+  }
+  state = {visModal: false, complains: [], loader: true};
+  fetchComplains = () => {
+    getComplain().then((com) => {
+      this.setState({complains: com, loader: false});
+      console.log(com);
+    });
   };
-  toggleModal = () => {
-    this.setState({isModalVisible: true});
-  };
+  componentDidMount() {
+    this.fetchComplains();
+  }
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.backicon}>
-            <Ionicons
-              size={34}
-              color={'white'}
-              name="md-return-down-back-outline"
-              onPress={() => {
-                this.props.navigation.navigate('Dashboard');
-              }}></Ionicons>
-          </View>
-          <View style={styles.textview}>
-            <Text style={styles.headertext}>Complaint Portal </Text>
-          </View>
-        </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{paddingHorizontal: 10}}>
-          {this.state.complaint.map((data, i) => {
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  this.toggleModal();
-                }}>
-                <View style={styles.comView}>
-                  <View style={styles.comtextview}>
-                    <Text style={styles.comtext}> {data.title}</Text>
-                  </View>
-                  <View style={styles.statusarea}>
-                    <View>
-                      <Text> Status</Text>
-                    </View>
-                    <View>
-                      <Text style={{color: 'green'}}>pending</Text>
-                    </View>
-                  </View>
-                  {<View style={styles.centeredView}></View>}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-        <Modal style={{backgroundColor:"white"}}
-          isVisible={this.state.isModalVisible}
-          // hideModalContentWhileAnimating={true}
-          backdropTransitionOutTiming={200}
-          onBackdropPress={() => this.setState({isModalVisible: false})}>
-          <View style={{flex: 1}}>
-            
-            <Button title="Ticket#4" />
-            <View style={styles.Viewdetails}>
-               <Text style={styles.Complaintext}>COMPLAIN DETAIL : </Text>
-            </View>
-            {this.state.complaint.map((data,i)=>{
-              return(
+        {this.state.loader ? (
+          <Loader />
+        ) : (
+          <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+              <View style={styles.left}>
                 <View>
-                  
-                  <Text>{data.message1}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.props.navigation.goBack();
+                    }}>
+                    <AntDesign name="arrowleft" color={'black'} size={28} />
+                  </TouchableOpacity>
                 </View>
-              )
-            })}
-            
-          </View>
-        </Modal>
+                <View style={{marginLeft: 10}}>
+                  <Text style={{color: 'grey', fontSize: 15, lineHeight: 17}}>
+                    Name
+                  </Text>
+                  <Text
+                    style={{fontWeight: '700', fontSize: 18, lineHeight: 18}}>
+                    Complain Portal
+                  </Text>
+                </View>
+              </View>
+
+              <View>
+                <Image
+                  source={require('./assets/images/logo.png')}
+                  style={styles.dp}
+                />
+              </View>
+            </View>
+            <View style={styles.ticket}>
+              <Text style={{fontWeight: '700', fontSize: 22}}>My Tickets</Text>
+            </View>
+            <ScrollView
+              contentContainerStyle={{alignItems: 'center'}}
+              style={styles.listScroll}
+              showsVerticalScrollIndicator={false}>
+              {this.state.complains.length == 0 ? (
+                <View>
+                  <Text>There is no ticket available</Text>
+                </View>
+              ) : (
+                <View
+                  style={{alignItems: 'center', height: '100%', width: '96%'}}>
+                  {this.state.complains.map((com, i) => {
+                    return (
+                      <View style={styles.complainTouch}>
+                        <View>
+                          <Text
+                            style={{
+                              fontWeight: '700',
+                              color: '#6B3590',
+                              fontSize: 16,
+                            }}>
+                            Ticket ID: {com.id}
+                          </Text>
+                          <Text>Issue: {com.titleLable}</Text>
+                          <Text>
+                            Created On:{' '}
+                            {Moment(new Date(com.createdOn)).format(
+                              'DD-MMMM-YYYY',
+                            )}
+                          </Text>
+                          <Text>
+                            Time:{' '}
+                            {Moment(new Date(com.createdOn)).format('hh:mm a')}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            width: '30%',
+                            height: '100%',
+                            justifyContent: 'space-around',
+                          }}>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#FFF9FF',
+                              height: 30,
+                              width: '100%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderColor: '#6B3590',
+                              borderRadius: 10,
+                              borderWidth: 1,
+                            }}>
+                            <Text style={{fontWeight: '500'}}>Delete</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#FFF9FF',
+                              height: 30,
+                              width: '100%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderColor: '#6B3590',
+                              borderRadius: 10,
+                              borderWidth: 1,
+                            }}>
+                            <Text
+                              style={{fontWeight: '500'}}
+                              onPress={() => {
+                                this.props.navigation.navigate('viewDetails', {
+                                  com: com,
+                                });
+                              }}>
+                              View Details
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+            </ScrollView>
+            <View style={styles.createBtnView}>
+              <TouchableOpacity
+                style={styles.createBtn}
+                onPress={() => this.setState({visModal: true})}>
+                <Text style={{fontSize: 14, color: '#fff', fontWeight: '700'}}>
+                  Create Ticket
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <ComplainPortalModal ctx={this} />
+          </SafeAreaView>
+        )}
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  textview: {
-    width: '90%',
-  },
-  headertext: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    // textAlign: 'center',
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    // display: 'flex',
-    // width: '70%',
-  },
-  backicon: {
-    display: 'flex',
-    width: '30%',
-    // justifyContent: 'space-between',
-  },
-
-  header: {
-    backgroundColor: '#ED393B',
-    height: 50,
     width: Dimensions.get('window').width,
-    textAlign: 'center',
-    alignItems: 'center',
-    // justifyContent: 'space-between',
-    flexDirection: 'row',
+    // height:Dimensions.get('window').height
   },
-  comView: {
-    alignItems: 'center',
-    textAlign: 'center',
-    height: 80,
+  dp: {height: 45, width: 45, borderRadius: 8},
+  header: {
+    height: 70,
     width: '100%',
-    backgroundColor: '#f7dcdc',
-    marginVertical: 10,
-    display: 'flex',
-    justifyContent: 'space-evenly',
     flexDirection: 'row',
-  },
-  comtext: {
-    fontSize: 20,
-  },
-  comtextview: {
-    width: '70%',
-  },
-  statusarea: {
-    // width: '100%',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    // width: '80%',
-    // height: '80%',
-    backgroundColor: 'transparent',
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
+    justifyContent: 'space-between',
     padding: 10,
-    elevation: 2,
+    alignItems: 'center',
   },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
+  left: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  containermodal: {
-    zIndex: 1,
-    margin: 25,
-    backgroundColor: 'white',
-  },
-  background: {
-    flex: 1,
-  },
-  outerContainer: {
+  ticket: {width: '100%', height: 30, paddingHorizontal: 10},
+  listScroll: {width: '100%'},
+  createBtnView: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0, 
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  Viewdetails:{
-
-    textAlign:"center",
-    alignItems:"center",
-   justifyContent:"center",
-   display:"flex",
-   height:50
+  createBtn: {
+    width: 120,
+    height: 40,
+    borderRadius: 25,
+    backgroundColor: '#6B3590',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  Complaintext:{
-    fontWeight:"bold"
-  }
+  complainTouch: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    height: 120,
+    width: '100%',
+    marginVertical: 5,
+    padding: 20,
+    elevation: 5,
+    borderRadius: 7,
+    shadowOffset: {width: 0, height: 0},
+    shadowColor: 'grey',
+    shadowOpacity: 0.7,
+    shadowRadius: 2,
+  },
 });
+
+export default ComplainPortal;

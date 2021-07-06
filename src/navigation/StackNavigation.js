@@ -12,8 +12,8 @@ import ImageLoader from '../screens/splash/splash';
 import Login from '../screens/login/login';
 import Dashboard from '../screens/Dashboard/Dashboard';
 import Meeting from '../screens/MeetingRoom/Meeting';
-import Complain from '../screens/Complain portal/Complain';
-import Chat from '../screens/Chat/Chat';
+import Complain from '../screens/Complain portal/complain';
+import Chat from '../screens/Chat/chat';
 import Profile from '../screens/Profile/Profile';
 import ApproveAndReject from '../screens/ApprovendReject/ApproveAndReject';
 
@@ -52,7 +52,7 @@ const RootNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="Complain"
+        name="Complain "
         component={Complain}
         options={{
           headerShown: false,

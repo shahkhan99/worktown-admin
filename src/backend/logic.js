@@ -116,13 +116,13 @@ export let handleLogin = async (email,password, ctx) => {
 
         Promise.all([
           Toast.show('Sign In Successful', Toast.LONG),
-          ctx.navigate('Dashboard'),
         ])
       }).catch((error)=>{
+        ctx.navigate('Dashboard'),
         Toast.show(error.message, Toast.LONG);
         console.log(error.message);
       })}
-  
+      
 };
 export const getProfile = async () => {
   const uid = await AsyncStorage.getItem('uid');
@@ -189,7 +189,7 @@ export const getAllCompanies = () => {
     let arr = [];
     let temp;
     firebase
-      .database()
+      .database() 
       .ref('users/')
       .on('value', snapShot => {
         snapShot.forEach(e => {
@@ -332,6 +332,22 @@ export const getAllMeetings = () => {
 
 // // ------------------------------ Profile Functios ----------------------------
 
+
+export const getProfile = async () => {
+  const uid = await AsyncStorage.getItem('uid');
+
+  return new Promise((resolve, reject) => {
+    console.log(uid);
+    let arr = [];
+
+    firebase
+      .database()
+      .ref(`users/${uid}`)
+      .on('value', (snapShot) => {
+        resolve(snapShot.val());
+      });
+  });
+};
 // export const getProfile = async () => {
 //   const uid = await AsyncStorage.getItem('uid');
 
@@ -431,3 +447,36 @@ export const getAllMeetings = () => {
 //     });
 //   }
 // };
+export const setComplain = async (complain) => {
+  const uid = await AsyncStorage.getItem('uid');
+  const id = getRandomString(7);
+  return new Promise((resolve, reject) => {
+    if (complain.complainImage == '-') {
+      complain.createdOn = firebase.database.ServerValue.TIMESTAMP;
+      complain.id = id;
+      const ref = firebase.database().ref(`allComplain/${uid}`).push(complain);
+      const key = ref.key;
+      firebase.database().ref(`allComplain/${uid}/${key}`).update({key: key});
+      resolve(ref);
+    } else {
+      complain.createdOn = firebase.database.ServerValue.TIMESTAMP;
+      const imgArr = [];
+      complain.id = id;
+      imgArr.push(complain.complainImage);
+      console.log(imgArr);
+      UploadComplainImage({
+        Files: imgArr,
+        name: uid,
+      }).then((ImgURLs) => {
+        complain.complainImage = ImgURLs;
+        const ref = firebase
+          .database()
+          .ref(`allComplain/${uid}`)
+          .push(complain);
+        const key = ref.key;
+        firebase.database().ref(`allComplain/${uid}/${key}`).update({key: key});
+        resolve(key);
+      });
+    }
+  });
+};
