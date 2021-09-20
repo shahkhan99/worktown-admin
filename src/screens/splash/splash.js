@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Animated, Text, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, Animated, Text, TouchableOpacity,AsyncStorage} from 'react-native';
 import {withNavigation} from 'react-navigation';
 
 class ImageLoader extends Component {
@@ -9,9 +9,16 @@ class ImageLoader extends Component {
       opacity: new Animated.Value(0),
     };
   }
-  componentDidMount() {
-    setTimeout(() => {
-      this.props.navigation.navigate('Login');
+  async componentDidMount() {
+
+    setTimeout(async () => {
+      const user = await AsyncStorage.getItem('uid');
+
+      user
+      
+        ? this.props.navigation.navigate('Dashboard')
+        : this.props.navigation.navigate('Login')
+
     }, 2000);
   }
 

@@ -15,7 +15,9 @@ import Meeting from '../screens/MeetingRoom/Meeting';
 import Complain from '../screens/Complain portal/complain';
 import Chat from '../screens/Chat/chat';
 import Profile from '../screens/Profile/Profile';
+import viewDetail from '../screens/Complain portal/viewDetail';
 import ApproveAndReject from '../screens/ApprovendReject/ApproveAndReject';
+import ComplainCompany from '../screens/Complain portal/companyList'
 
 const Stack = createStackNavigator();
 const RootNavigator = () => {
@@ -52,7 +54,7 @@ const RootNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="Complain "
+        name="Complain"
         component={Complain}
         options={{
           headerShown: false,
@@ -69,7 +71,8 @@ const RootNavigator = () => {
         name="Profile"
         component={Profile}
         options={{
-          headerShown: false,
+          headerTitleAlign: "center ",
+          headerShown: true,
         }}
       />
       <Stack.Screen
@@ -79,6 +82,22 @@ const RootNavigator = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="viewDetails"
+        component={viewDetail}
+        options={{ 
+          
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+      name="complainCompany"
+      component={ComplainCompany}
+      options={{ 
+        
+        headerShown: false,
+      }}
+    />
     </Stack.Navigator>
   );
 };

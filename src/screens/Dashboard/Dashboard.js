@@ -28,7 +28,7 @@ export default class Dashboard extends Component {
           <TouchableOpacity
             style={styles.redBox}
             onPress={() => {
-              this.props.navigation.navigate('Complain');
+              this.props.navigation.navigate('complainCompany');
             }}>
             <Text style={styles.boxText}>Complain Portal</Text>
           </TouchableOpacity>

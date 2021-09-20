@@ -16,11 +16,10 @@ import {
   Dimensions,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import ComplainPortalModal from '../../components/Modal/ComplainPortalModal/index';
 import Moment from 'moment';
 import {getComplain} from '../../backend/logic';
 import Loader from '../../components/Loader/loader';
-class ComplainPortal extends Component {
+class Complain extends Component { 
   constructor(props) {
     super(props);
     this.fetchComplains = this.fetchComplains.bind(this);
@@ -34,9 +33,16 @@ class ComplainPortal extends Component {
   };
   componentDidMount() {
     this.fetchComplains();
+    this.focusListener = this.props.navigation.addListener('focus', () => {
+      this.fetchComplains();
+        });
   }
-
+  componentWillUnmount() {
+    this.focusListener;
+  }
   render() {
+    const {listName} = this.props.route.params;
+
     return (
       <View style={styles.container}>
         {this.state.loader ? (
@@ -55,11 +61,11 @@ class ComplainPortal extends Component {
                 </View>
                 <View style={{marginLeft: 10}}>
                   <Text style={{color: 'grey', fontSize: 15, lineHeight: 17}}>
-                    Name
+                    {listName}
                   </Text>
                   <Text
                     style={{fontWeight: '700', fontSize: 18, lineHeight: 18}}>
-                    Complain Portal
+                    Complains
                   </Text>
                 </View>
               </View>
@@ -86,6 +92,7 @@ class ComplainPortal extends Component {
                 <View
                   style={{alignItems: 'center', height: '100%', width: '96%'}}>
                   {this.state.complains.map((com, i) => {
+                    if(com.userCompany===listName){
                     return (
                       <View style={styles.complainTouch}>
                         <View>
@@ -143,7 +150,7 @@ class ComplainPortal extends Component {
                               style={{fontWeight: '500'}}
                               onPress={() => {
                                 this.props.navigation.navigate('viewDetails', {
-                                  com: com,
+                                  com: com,cotX:this
                                 });
                               }}>
                               View Details
@@ -151,22 +158,12 @@ class ComplainPortal extends Component {
                           </TouchableOpacity>
                         </View>
                       </View>
-                    );
+                    );}
                   })}
                 </View>
               )}
             </ScrollView>
-            <View style={styles.createBtnView}>
-              <TouchableOpacity
-                style={styles.createBtn}
-                onPress={() => this.setState({visModal: true})}>
-                <Text style={{fontSize: 14, color: '#fff', fontWeight: '700'}}>
-                  Create Ticket
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <ComplainPortalModal ctx={this} />
-          </SafeAreaView>
+                     </SafeAreaView>
         )}
       </View>
     );
@@ -228,4 +225,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ComplainPortal;
+export default Complain;

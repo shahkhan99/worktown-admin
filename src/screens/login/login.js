@@ -87,7 +87,8 @@ class Login extends Component {
             <View style={styles.submitBtnView}>
               <TouchableOpacity
                 style={styles.submitBtn}
-                onPress={() => {
+                onPress={() => { 
+                  // this.props.navigation.navigate("Dashboard")
                   handleLogin(this.state.email,this.state.password,this.props.navigation);
                 }}>
                 <Text style={styles.submitBtnText}>Login</Text>

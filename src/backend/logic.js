@@ -116,9 +116,10 @@ export let handleLogin = async (email,password, ctx) => {
 
         Promise.all([
           Toast.show('Sign In Successful', Toast.LONG),
+          ctx.navigate('Dashboard'),
         ])
       }).catch((error)=>{
-        ctx.navigate('Dashboard'),
+        
         Toast.show(error.message, Toast.LONG);
         console.log(error.message);
       })}
@@ -253,7 +254,42 @@ export const updateApproval = (state, uid, ctx) => {
 //     .ref(`communityChats/${firebase.auth().currentUser.uid}/`)
 //     .set(message);
 // };
+// ------------------------- Community chat --------------------------------
 
+export const sendCommunityMessage = (message) => {
+  message.forEach((item) => {
+    const messages = {
+      pin:'-',
+      text: item.text,
+      timestamp: firebase.database.ServerValue.TIMESTAMP,
+      user: item.user,
+    };
+    const ref = firebase.database().ref('communityChats').push(messages);
+    const key = ref.key;
+    firebase.database().ref(`communityChats/${key}`).update({id: key});
+  });
+};
+
+parse = (messages) => {
+  const {user, text, timestamp} = messages.val();
+  const {key: _id} = messages;
+  const createdAt = new Date(timestamp);
+  return {
+    _id,
+    createdAt,
+    text,
+    user,
+  };
+};
+export const getCommunityMessages = (callback) => {
+  firebase
+    .database()
+    .ref('communityChats')
+    .on('child_added', (snapshot) => callback(parse(snapshot)));
+};
+export const offRef = () => {
+  firebase.database().ref('communityChats').off();
+};
 // // -------------------- Meeting Functions ---------------------------------
 
 parseTime = (s) => {
@@ -333,7 +369,7 @@ export const getAllMeetings = () => {
 // // ------------------------------ Profile Functios ----------------------------
 
 
-export const getProfile = async () => {
+export const getProfileuser = async () => {
   const uid = await AsyncStorage.getItem('uid');
 
   return new Promise((resolve, reject) => {
@@ -342,7 +378,7 @@ export const getProfile = async () => {
 
     firebase
       .database()
-      .ref(`users/${uid}`)
+      .ref(`admins/${uid}`)
       .on('value', (snapShot) => {
         resolve(snapShot.val());
       });
@@ -480,3 +516,57 @@ export const setComplain = async (complain) => {
     }
   });
 };
+export const getComplain = async () => {
+  const uid = await AsyncStorage.getItem('uid');
+
+  return new Promise((resolve, reject) => {
+    let arr = [];
+    firebase
+      .database()
+      .ref(`allComplain/`)
+      .orderByChild('createdOn')
+      .on('value', (snapShot) => {
+          snapShot.forEach((c) => {
+          c.forEach((co)=>{   
+            arr.push(co.val());
+          }
+)
+          });
+        
+      });
+    // console.log(arr);
+    arr.reverse();
+    resolve(arr);
+  });
+};
+
+export const complainReply=(rep,ctx)=>{
+  console.log(rep.ticketID);
+if(rep.reply=='' || rep.reply=='-'){
+  Toast.show('All field are reduired')
+}
+else{
+  let time=new Date()
+    firebase
+      .database()
+      .ref(`allComplain/`)
+      .orderByChild('createdOn')
+      .once('value', (snapShot) => {
+          snapShot.forEach((c) => {
+          c.forEach((co)=>{   
+            if(co.val().key==rep.ticketID)
+            {
+              firebase.database().ref(`allComplain/${c.key}/${rep.ticketID}/adminReply`).update({reply:rep.reply,complainStatus:rep.titleLable,replyOn:time}).then(()=>
+              {
+                ctx.setState({spiner:false,visible:false,titleLable:''})
+                ctx.props.navigation.navigate('Complain')
+                ctx.props.route.params.getComplain()
+              })
+            }
+          }
+)
+          });
+        
+      });}
+   
+}

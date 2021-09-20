@@ -14,7 +14,7 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {getAllCompanies, updateApproval} from '../../backend/logic';
 import Toast from 'react-native-simple-toast';
-import Loader from '../../loader/loader';
+import Loader from '../../components/Loader/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class ApproveAndReject extends Component {

@@ -19,7 +19,7 @@ import {
 import {
   sendCommunityMessage,
   uid,
-  getProfile,
+  getProfileuser,
   getCommunityMessages,
   offRef,
 } from '../../../backend/logic';
@@ -107,12 +107,12 @@ export default class CommunityChat extends Component {
   fetchProfile = async () => {
     let a = [];
     const uid = await AsyncStorage.getItem('uid');
-    getProfile().then((data) => {
+    getProfileuser().then((data) => {
       a.push(data);
       a.forEach((element) => {
         this.setState({
           userName: element.name,
-          userImage: element.logos[1],
+          userImage: element.logo,
           uid: uid,
         });
       });

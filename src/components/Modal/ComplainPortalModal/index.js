@@ -21,7 +21,6 @@ import RadioForm, {
 import {getProfile, setComplain} from '../../../backend/logic';
 import {ComplainPick} from '../../ProfileImageUpload/imageUpload.js';
 import Toast from 'react-native-simple-toast';
-import {KeyboardAvoidingView} from 'react-native';
 
 class ComplainPortalModal extends Component {
   constructor(props) {
@@ -130,6 +129,8 @@ class ComplainPortalModal extends Component {
         backdropTransitionOutTiming={1000}
         avoidKeyboard={true}>
         <SafeAreaView style={styles.modelContainer}>
+          <ScrollView>
+          <View style={{ height:"100%"}}>
           <TouchableOpacity
             style={styles.crossBtn}
             onPress={() => {
@@ -206,6 +207,8 @@ class ComplainPortalModal extends Component {
               onChangeText={(value) => this.handleInputChange('issue', value)}
               maxLength={150}
             />
+           
+
             <TouchableOpacity
               style={styles.mediaBtn}
               onPress={() => ComplainPick(this)}>
@@ -213,7 +216,9 @@ class ComplainPortalModal extends Component {
               <Text style={{paddingLeft: 10}}>
                 Upload Video/Image(Optional)
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> 
+           
+
           </View>
           <View style={styles.createBtn}>
             {this.state.spinner ? (
@@ -230,6 +235,8 @@ class ComplainPortalModal extends Component {
               </TouchableOpacity>
             )}
           </View>
+          </View>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     );
@@ -241,23 +248,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modelContainer: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: 'white',
     width: '100%',
-    height: '80%',
-    // justifyContent: 'center',
+    height: '100%',
+    justifyContent: 'center',
     // alignItems: 'center',
   },
   crossBtn: {
     width: '100%',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     marginTop: 10,
     paddingHorizontal: 10,
   },
   postView: {
     width: '100%',
+    // height:'100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   inputAbout: {
     width: '80%',
@@ -277,6 +285,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   mediaBtn: {
+    position:'relative',
     marginVertical: 20,
     height: 50,
     width: '80%',
@@ -291,15 +300,17 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 0},
     shadowOpacity: 0.8,
     shadowRadius: 5,
+    bottom: 0
   },
   createBtn: {
-    // position: 'absolute',
-    bottom: 10,
+    position: 'relative',
+    bottom: 0,
     height: 50,
     width: '100%',
     alignItems: 'center',
   },
   createTouce: {
+    
     width: 120,
     height: 40,
     borderRadius: 25,
