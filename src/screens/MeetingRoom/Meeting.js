@@ -19,6 +19,7 @@ import {
   Modal
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
+// import meetingLogo from '../MeetingRoom/assets/images/MeetingRoom/logo.png'
 import Dialog, {
   DialogTitle,
   DialogContent,
@@ -34,6 +35,7 @@ import DatePicker from 'react-native-date-picker';
 import Moment from 'moment';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {CalendarList} from "react-native-common-date-picker";
+import {connect} from 'react-redux'
 
 
 // Databse
@@ -291,24 +293,38 @@ class Meeting extends Component {
   }
 
   render() {
+    const date = [];
+    const {meetings} = this.props;
+    if (meetings.meetings != null) {
+      Object.keys(meetings.meetings).forEach((d) => {
+        if (
+          Moment(d).format('MMM DD, YYYY') ===
+            Moment(
+              new Date(new Date().setDate(new Date().getDate() + 1)),
+            ).format('MMM DD, YYYY') ||
+          Moment(d).format('MMM DD, YYYY') ===
+            Moment(new Date()).format('MMM DD, YYYY')
+        ) {
+          date.push(d);
+        }
+      });
+    }
+    date.sort((a, b) => {
+      var dateA = new Date(a);
+      var dateB = new Date(b);
+      return dateA - dateB;
+    });
+    let meetingDate = date;
+    let meetingSlot = meetings.meetings;
+    let check = false;
+
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.backicon}>
-            <Ionicons
-              size={34}
-              color={'white'}
-              name="md-return-down-back-outline"
-              onPress={() => {
-                this.props.navigation.navigate('Dashboard');
-              }}></Ionicons>
-          </View>
-          <View style={styles.textview}>
-            <Text style={styles.headertext}>Meeting Room </Text>
-          </View>
-        </View>
-        <View style={{height:'100%',width:'100%'}}> 
-          {this.state.meetingSlot == null ? (
+      <View style={styles.container}>
+        {this.state.loading ? (
+          <Loader />
+        ) : (
+          <SafeAreaView style={styles.container}>
+            {meetingSlot == null ? (
               <View
                 style={{
                   height: '100%',
@@ -321,331 +337,332 @@ class Meeting extends Component {
             ) : (
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.user}>
-                  {this.state.meetingDate.map((val, i) => {
-                    for (let k = 0; k <= 30; k++) {
-                      if (
-                        Moment(val).format('MMM DD, YYYY') ===
-                          Moment(
-                            new Date(
-                              new Date().setDate(new Date().getDate() + k),
-                            ),
-                          ).format('MMM DD, YYYY') ||
-                        Moment(val).format('MMM DD, YYYY') ===
-                          Moment(new Date()).format('MMM DD, YYYY')
-                      ) {
-                        return (
-                          <View style={styles.completeView}>
-                            <View style={styles.dateView}>
-                              <View style={styles.line} />
-                              <View>
-                                {Moment(val).format('MMM DD, YYYY') ===
-                                Moment(new Date()).format('MMM DD, YYYY') ? (
-                                  <Text style={{color: '#d0d6d1'}}>Today</Text>
-                                ) : (
-                                  <Text style={{color: '#d0d6d1'}}>
-                                    {Moment(val).format('MMM DD, YYYY')}
-                                  </Text>
-                                )}
-                              </View> 
-                              <View style={styles.line} />
-                            </View>
+                  {meetingDate.length > 0 ? (
+                    meetingDate.map((val, i) => {
+                      return (
+                        <View style={styles.completeView} key={i}>
+                          {(check = true)}
+                          <View style={styles.dateView}>
+                            <View style={styles.line} />
                             <View>
-                              {Object.keys(this.state.meetingSlot[val]).map(
-                                (key, i) => {
-                                  const item = this.state.meetingSlot[val][key];
-                                  return (
-                                    <View style={styles.slotCard}>
-                                      <View>
-                                        <Image
-                                          source={{uri: item.companyImage}}
-                                          style={styles.dp}
-                                        />
-                                      </View>
-                                      <View style={styles.detailsView}>
-                                        <Text style={styles.companyHead}>
-                                          {item.userCompany}
-                                        </Text>
-                                        <View style={styles.roomTime}>
-                                          <View>
-                                            <Text>
-                                              Meeting Room {item.roomNumber}
-                                            </Text>
-                                          </View>
-                                          <Entypo
-                                            name="dot-single"
-                                            color={'#000'}
-                                            size={18}
-                                          />
-                                          <View style={styles.timeView}>
-                                            <Text>{item.startTime}</Text>
-                                            <Text> - </Text>
-                                            <Text>{item.endTime}</Text>
-                                          </View>
-                                        </View>
-                                      </View>
-                                    </View>
-                                  );
-                                },
+                              {Moment(val).format('MMM DD, YYYY') ===
+                              Moment(new Date()).format('MMM DD, YYYY') ? (
+                                <Text style={{color: '#d0d6d1'}}>Today</Text>
+                              ) : (
+                                <Text style={{color: '#d0d6d1'}}>
+                                  {Moment(val).format('MMM DD, YYYY')}
+                                </Text>
                               )}
                             </View>
+                            <View style={styles.line} />
                           </View>
-                        );
-                      }
-                    }
-                  })}
-                </View>
-              </ScrollView>)}
-        </View>
-        <FAB
-          style={this.state.fabHide ? styles.fab : styles.fab1}
-          large
-          label="Book As an Admin"
-          icon={() => (
-            <Image
-              source={require('./assets/images/logo.png')}
-              style={styles.iconSize}
-            />
-          )}
-          onPress={() => this.onOpenBottomSheetHandler(0)}
-        />
-
-        <BottomSheet
-          // callBackNode={this.drawerCallbackNode}
-          ref={'bottomSheetRef'}
-          snapPoints={[450, '50%', 0]}
-          initialSnap={2}
-          renderHeader={this.renderHeader}
-          renderContent={this.renderContent}
-          onCloseEnd={() => this.fabShow()}
-          enabledGestureInteraction={true}
-          enabledBottomClamp={true}
-          enabledInnerScrolling={false}
-        />
-        {/* RoomID Dialog */}
-        <Dialog
-          visible={this.state.visRoom}
-          dialogTitle={<DialogTitle title="Pick Room" />}
-          dialogAnimation={
-            new SlideAnimation({
-              slideFrom: 'bottom',
-            })
-          }
-          onTouchOutside={() => {
-            this.setState({visRoom: false});
-          }}>
-          <DialogContent style={{height: 250}}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={{width: 250}}>
-              {this.state.meetingRoom.map((rooms, i) => {
-                return (
-                  <TouchableOpacity
-                    style={
-                      this.state.roomNumber == rooms.id
-                        ? styles.roomListDialog
-                        : styles.roomListDialog1
-                    }
-                    onPress={() => {
-                      this.setState({roomNumber: rooms.id, visRoom: false});
-                    }}>
-                    <Image
-                      source={rooms.imgUrl}
-                      style={{height: 50, width: 50, borderRadius: 50}}
-                    />
-                    <View>
-                      <Text>Room ID: {rooms.id}</Text>
-                      <Text>{rooms.name}</Text>
+                          <View>
+                            {Object.keys(meetingSlot[val]).map((key, i) => {
+                              const item = meetingSlot[val][key];
+                              {console.log(key)}
+                              return (
+                                <View style={styles.slotCard} key={i}>
+                                  <View>
+                                    <Image
+                                      source={{uri: item.companyImage}}
+                                      style={styles.dp}
+                                    />
+                                  </View>
+                                  <View style={styles.detailsView}>
+                                    <Text style={styles.companyHead}>
+                                      {item.userCompany}
+                                    </Text>
+                                    <View style={styles.roomTime}>
+                                      <View>
+                                        <Text>
+                                          Meeting Room {item.roomNumber}
+                                        </Text>
+                                      </View>
+                                      <Entypo
+                                        name="dot-single"
+                                        color={'#000'}
+                                        size={18}
+                                      />
+                                      <View style={styles.timeView}>
+                                        <Text>{item.startTime}</Text>
+                                        <Text> - </Text>
+                                        <Text>{item.endTime}</Text>
+                                      </View>
+                                    </View>
+                                  </View>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      );
+                    })
+                  ) : (
+                    <View
+                      style={{
+                        marginTop: 10,
+                        height: '100%',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: '#000'}}>No meeting available</Text>
                     </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </DialogContent>
-        </Dialog>
-        {/* Date Dialog */}
-        <Dialog
-          visible={this.state.visDate}
-          dialogTitle={<DialogTitle title="Pick Date" />}
-          animationDuration={400}
-          dialogAnimation={
-            new ScaleAnimation({
-              initialValue: 0, // optional
-              useNativeDriver: true,
-            })
-          }
-          onTouchOutside={() => {
-            this.setState({visDate: false, date: ''});
-          }}
-          footer={
-            <DialogFooter>
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="CANCEL"
-                onPress={() => {
-                  this.setState({visDate: false, date: ''});
-                }}
-              />
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="OK"
-                onPress={() => {
-                  this.setState({
-                    visDate: false,
-                    date: Moment(this.state.currentDate).format('DD-MMMM-YYYY'),
-                  });
-                }}
-              />
-            </DialogFooter>
-          }>
-          <DialogContent>
-            {/* <DatePicker
-              style={{width: 250}}
-              date={this.state.currentDate}
-              mode="date"
-              placeholder="Select Day"
-              format="YYYY-MM-DD"
-              minimumDate={new Date()}
-              maximumDate={
-                new Date(new Date().setDate(new Date().getDate() + 30))
+                  )}
+                </View>
+              </ScrollView>
+            )}
+
+            <FAB
+              style={this.state.fabHide ? styles.fab : styles.fab1}
+              large
+              label="Book Now"
+              // icon={() => (
+              //   // <Image
+              //   //   source={meetingLogo}
+              //   //   style={styles.iconSize}
+              //   // />
+              // )}
+              onPress={() => this.onOpenBottomSheetHandler(0)}
+            />
+            <TouchableOpacity
+              style={
+                this.state.fabHide ? styles.hideBackDrop : styles.showBackDrop
               }
-              confirmBtnText="Confirm"
-              cancelBtnText="Cancel"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0,
-                },
-                dateInput: {
-                  marginLeft: 36,
-                },
-                // ... You can check the source to find the other keys.
-              }}
-              onDateChange={date => {
-                this.setState({
-                  currentDate: date,
-                });
-              }}
-            /> */}
-               <CalendarList
-                        titleText={'Select Date'}
-                        minDate={new Date()}
-                        maxDate={new Date(new Date().setDate(new Date().getDate() + 30))}
-                        cancel={() => this.setState({visDate: false})}
-                        selectedDateMarkType={'circle'}
-                        selectedDateMarkColor={'red'}
-                        selectedDateMarkRangeColor={'orange'}
-                        headerTitleType={2}
-                        confirm={data => {
-                            this.setState({
-                                startDate: data[0],
-                                endDate:data[1],
-                                visDate: false,
-                            });
-                            console.log(this.state.startDate,'dateeeee');
+              onPress={() => {
+                this.onOpenBottomSheetHandler(2);
+                this.setState({fabHide: true});
+              }}></TouchableOpacity>
+            <BottomSheet
+              // callBackNode={this.drawerCallbackNode}
+              ref={'bottomSheetRef'}
+              snapPoints={[550, '70%', -30]}
+              initialSnap={2}
+              renderHeader={this.renderHeader}
+              renderContent={this.renderContent}
+              onCloseEnd={() => this.fabShow()}
+              enabledGestureInteraction={true}
+              enabledBottomClamp={true}
+              enabledInnerScrolling={false}
+            />
+            {/* RoomID Dialog */}
+            <Dialog
+              visible={this.state.visRoom}
+              dialogTitle={<DialogTitle title="Pick Room" />}
+              dialogAnimation={
+                new SlideAnimation({
+                  slideFrom: 'bottom',
+                })
+              }
+              onTouchOutside={() => {
+                this.setState({visRoom: false});
+              }}>
+              <DialogContent style={{height: 250}}>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{width: 250}}>
+                  {this.state.meetingRoom.map((rooms, i) => {
+                    return (
+                      <TouchableOpacity
+                        style={
+                          this.state.roomNumber == rooms.id
+                            ? styles.roomListDialog
+                            : styles.roomListDialog1
+                        }
+                        onPress={() => {
+                          this.setState({roomNumber: rooms.id, visRoom: false});
                         }}
-                    />
-          </DialogContent>
-        </Dialog>
-        {/* Start Time */}
-        <Dialog
-          visible={this.state.visSTime}
-          dialogTitle={<DialogTitle title="Start Time" />}
-          animationDuration={400}
-          dialogAnimation={
-            new ScaleAnimation({
-              initialValue: 0, // optional
-              useNativeDriver: true,
-            })
-          }
-          onTouchOutside={() => {
-            this.setState({visSTime: false});
-          }}
-          footer={
-            <DialogFooter>
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="CANCEL"
-                onPress={() => {
-                  this.setState({visSTime: false, startTime: ''});
-                }}
-              />
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="CONFIRM"
-                onPress={() => {
-                  this.setState({visSTime: false});
-                }}
-              />
-            </DialogFooter>
-          }>
-          <DialogContent>
-            <DatePicker
-              androidVariant="iosClone"
-              mode="time"
-              date={this.state.currentDate}
-              minuteInterval={15}
-         
-              onDateChange={date => {
-                this.setState({
-                  startTime: Moment(date).format('hh:mm a'),
-                });
+                        key={i}>
+                        <Image
+                          source={rooms.imgUrl}
+                          style={{height: 50, width: 50, borderRadius: 50}}
+                        />
+                        <View>
+                          <Text>Room ID: {rooms.id}</Text>
+                          <Text>{rooms.name}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </DialogContent>
+            </Dialog>
+            {/* Date Dialog */}
+            <Dialog
+              visible={this.state.visDate}
+              dialogTitle={<DialogTitle title="Pick Date" />}
+              animationDuration={400}
+              dialogAnimation={
+                new ScaleAnimation({
+                  initialValue: 0, // optional
+                  useNativeDriver: true,
+                })
+              }
+              onTouchOutside={() => {
+                this.setState({visDate: false, date: ''});
               }}
-            />
-          </DialogContent>
-        </Dialog>
-        {/* End Time */}
-        <Dialog
-          visible={this.state.visETime}
-          dialogTitle={<DialogTitle title="End Time" />}
-          animationDuration={400}
-          dialogAnimation={
-            new ScaleAnimation({
-              initialValue: 0, // optional
-              useNativeDriver: true,
-            })
-          }
-          onTouchOutside={() => {
-            this.setState({visETime: false});
-          }}
-          footer={
-            <DialogFooter>
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="CANCEL"
-                onPress={() => {
-                  this.setState({
-                    visETime: false,
-                    endTime: '',
-                  });
-                }}
-              />
-              <DialogButton
-                textStyle={{color: '#6B3590'}}
-                text="CONFIRM"
-                onPress={() => {
-                  this.setState({visETime: false});
-                }}
-              />
-            </DialogFooter>
-          }>
-          <DialogContent>
-            <DatePicker
-              androidVariant="iosClone"
-              mode="time"
-              date={this.state.currentDate}
-              minuteInterval={15}
-            
-              onDateChange={date => {
-                this.setState({
-                  endTime: Moment(date).format('hh:mm a'),
-                });
+              footer={
+                <DialogFooter>
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="CANCEL"
+                    onPress={() => {
+                      this.setState({visDate: false, date: ''});
+                    }}
+                  />
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="OK"
+                    onPress={() => {
+                      this.setState({
+                        visDate: false,
+                        date: Moment(this.state.currentDate).format(
+                          'DD-MMMM-YYYY',
+                        ),
+                      });
+                    }}
+                  />
+                </DialogFooter>
+              }>
+              <DialogContent>
+                <DatePicker
+                  style={{width: 250}}
+                  date={this.state.currentDate}
+                  mode="date"
+                  placeholder="Select Day"
+                  format="YYYY-MM-DD"
+                  minimumDate={new Date()}
+                  maximumDate={
+                    new Date(new Date().setDate(new Date().getDate() + 1))
+                  }
+                  confirmBtnText="Confirm"
+                  cancelBtnText="Cancel"
+                  customStyles={{
+                    dateIcon: {
+                      position: 'absolute',
+                      left: 0,
+                      top: 4,
+                      marginLeft: 0,
+                    },
+                    dateInput: {
+                      marginLeft: 36,
+                    },
+                    // ... You can check the source to find the other keys.
+                  }}
+                  onDateChange={(date) => {
+                    this.setState({
+                      currentDate: date,
+                    });
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+            {/* Start Time */}
+            <Dialog
+              visible={this.state.visSTime}
+              dialogTitle={<DialogTitle title="Start Time" />}
+              animationDuration={400}
+              dialogAnimation={
+                new ScaleAnimation({
+                  initialValue: 0, // optional
+                  useNativeDriver: true,
+                })
+              }
+              onTouchOutside={() => {
+                this.setState({visSTime: false});
               }}
-            />
-          </DialogContent>
-        </Dialog>
-      </SafeAreaView>
+              footer={
+                <DialogFooter>
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="CANCEL"
+                    onPress={() => {
+                      this.setState({visSTime: false, startTime: ''});
+                    }}
+                  />
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="CONFIRM"
+                    onPress={() => {
+                      this.setState({visSTime: false});
+                    }}
+                  />
+                </DialogFooter>
+              }>
+              <DialogContent>
+                <DatePicker
+                  androidVariant="iosClone"
+                  mode="time"
+                  date={this.state.currentDate}
+                  minuteInterval={15}
+                  // is24hourSource='locale'
+                  // locale="fr"
+                  onDateChange={(date) => {
+                    this.setState({
+                      currentDate: date,
+                      startTime: Moment(date).format('hh:mm a'),
+                    });
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+            {/* End Time */}
+            <Dialog
+              visible={this.state.visETime}
+              dialogTitle={<DialogTitle title="End Time" />}
+              animationDuration={400}
+              dialogAnimation={
+                new ScaleAnimation({
+                  initialValue: 0, // optional
+                  useNativeDriver: true,
+                })
+              }
+              onTouchOutside={() => {
+                this.setState({visETime: false});
+              }}
+              footer={
+                <DialogFooter>
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="CANCEL"
+                    onPress={() => {
+                      this.setState({
+                        visETime: false,
+                        endTime: '',
+                      });
+                    }}
+                  />
+                  <DialogButton
+                    textStyle={{color: '#6B3590'}}
+                    text="CONFIRM"
+                    onPress={() => {
+                      this.setState({visETime: false});
+                    }}
+                  />
+                </DialogFooter>
+              }>
+              <DialogContent>
+                <DatePicker
+                  androidVariant="iosClone"
+                  mode="time"
+                  date={this.state.currentDate}
+                  minuteInterval={15}
+                  onDateChange={(date) => {
+                    this.setState({
+                      currentDate: date,
+                      endTime: Moment(
+                        new Date(date).setMinutes(
+                          new Date(date).getMinutes() - 1,
+                        ),
+                      ).format('hh:mm a'),
+                    });
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          </SafeAreaView>
+        )}
+      </View>
     );
   }
 }
@@ -829,6 +846,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
 });
+const mapStateToProps = (state) => ({
+  name: state.name,
+  meetings: state.meetings,
+});
 
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     addMeeting: (name) => {
+//       dispatch(getMeetings(name));
+//     },
+//   };
+// };
 
-export default Meeting;
+export default connect(mapStateToProps)(Meeting);

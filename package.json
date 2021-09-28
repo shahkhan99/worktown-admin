@@ -15,6 +15,7 @@
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.4",
     "firebase": "^8.4.1",
+    "keymirror": "^0.1.1",
     "lottie-react-native": "^4.0.2",
     "moment": "^2.29.1",
     "react": "17.0.1",
@@ -43,6 +44,7 @@
     "react-native-vector-icons": "^8.1.0",
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4",
+    "react-redux": "^7.2.5",
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "un": "^0.0.0"
   },

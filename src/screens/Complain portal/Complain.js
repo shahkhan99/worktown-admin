@@ -19,6 +19,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Moment from 'moment';
 import {getComplain} from '../../backend/logic';
 import Loader from '../../components/Loader/loader';
+import {connect} from 'react-redux'
 class Complain extends Component { 
   constructor(props) {
     super(props);
@@ -26,10 +27,10 @@ class Complain extends Component {
   }
   state = {visModal: false, complains: [], loader: true};
   fetchComplains = () => {
-    getComplain().then((com) => {
-      this.setState({complains: com, loader: false});
-      console.log(com);
-    });
+    const { complains } = this.props;
+ 
+      this.setState({complains: complains.complains, loader: false});
+   
   };
   componentDidMount() {
     this.fetchComplains();
@@ -225,4 +226,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Complain;
+const mapStateToProps = (state) => ({
+ 
+  complains: state.complains,
+});
+
+export default connect(mapStateToProps)(Complain);

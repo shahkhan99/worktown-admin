@@ -1,6 +1,13 @@
 import React, {Component} from 'react';
 import {View, StyleSheet, Animated, Text, TouchableOpacity,AsyncStorage} from 'react-native';
 import {withNavigation} from 'react-navigation';
+import {
+  getProfile,
+  getAllUsers,
+  getComplain,
+  getAllCompanies,
+  getAllMeetings,
+} from '../../backend/logic';
 
 class ImageLoader extends Component {
   constructor(props) {
@@ -10,7 +17,11 @@ class ImageLoader extends Component {
     };
   }
   async componentDidMount() {
-
+    // getProfile();
+    // getAllUsers();
+    getComplain();
+    getAllCompanies();
+    getAllMeetings();
     setTimeout(async () => {
       const user = await AsyncStorage.getItem('uid');
 

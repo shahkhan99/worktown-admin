@@ -19,6 +19,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Moment from 'moment';
 import {getComplain} from '../../backend/logic';
 import Loader from '../../components/Loader/loader';
+import {connect} from 'react-redux'
 class ComplainCompany extends Component { 
   constructor(props) {
     super(props);
@@ -29,16 +30,17 @@ class ComplainCompany extends Component {
  
 
   fetchComplains = () => {
-    getComplain().then((com) => {
-    let unique = [...new Set(com.map(item => item.userCompany))];
+ const {complains}=this.props;
+    let unique = [...new Set(complains.complains.map(item => item.userCompany))];
       this.setState({companies:unique,loader: false});
-    });
+   
   };
   componentDidMount() {
     this.fetchComplains();
   }
 
   render() {
+    console.log(this.props.complains.complains)
     return (
       <View style={styles.container}>
         {this.state.loader ? (
@@ -160,5 +162,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
 });
+const mapStateToProps = (state) => ({
+ 
+  complains: state.complains,
+});
 
-export default ComplainCompany;
+export default connect(mapStateToProps)(ComplainCompany);

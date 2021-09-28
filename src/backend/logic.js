@@ -6,6 +6,10 @@ import {
 import firebase from './config';
 import Toast from 'react-native-simple-toast';
 import {AsyncStorage} from 'react-native';
+import { configureStore } from '../redux/store/userStore';
+import {getMeetings} from '../redux/actions/meetingAction'
+import {getComplains} from '../redux/actions/complainAction'
+import {getMember} from '../redux/actions/membersAction';
 
 export var uid = null;
 export var email = null;
@@ -201,7 +205,7 @@ export const getAllCompanies = () => {
           }
         });
       });
-    resolve(arr);
+    configureStore.dispatch(getMember(arr))
   });
 
   //   const val = firebase
@@ -348,6 +352,7 @@ export const setMeetingSlot = (slot, ctx) => {
 };
 
 export const getAllMeetings = () => {
+  const addMeeting = (user) => configureStore.dispatch(getMeetings(user));
   return new Promise((resolve, reject) => {
     let arr = [];
     let key = [];
@@ -356,8 +361,8 @@ export const getAllMeetings = () => {
       .ref('allMeetings/')
       .orderByKey()
       .on('value', (snapShot) => {
-        resolve(snapShot.val());
-
+        addMeeting(snapShot.val());
+        
         // arr.push(snapShot.val());
       });
     // console.log(arr, key, 'adsjfj');
@@ -516,27 +521,30 @@ export const setComplain = async (complain) => {
     }
   });
 };
+
 export const getComplain = async () => {
   const uid = await AsyncStorage.getItem('uid');
-
+  let arr=[]
   return new Promise((resolve, reject) => {
-    let arr = [];
+    
     firebase
-      .database()
+    .database()
       .ref(`allComplain/`)
       .orderByChild('createdOn')
       .on('value', (snapShot) => {
+        if(snapShot.exists()){
           snapShot.forEach((c) => {
-          c.forEach((co)=>{   
-            arr.push(co.val());
-          }
-)
+            c.forEach((co)=>{   
+              arr.push(co.val());
+            }
+            )
           });
+        }
         
       });
-    // console.log(arr);
-    arr.reverse();
-    resolve(arr);
+      arr.reverse();
+   configureStore.dispatch(getComplains(arr));
+     
   });
 };
 

@@ -16,8 +16,8 @@ import {getAllCompanies, updateApproval} from '../../backend/logic';
 import Toast from 'react-native-simple-toast';
 import Loader from '../../components/Loader/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-export default class ApproveAndReject extends Component {
+import {connect } from 'react-redux'
+ class ApproveAndReject extends Component {
   state = {
     visLoad: false,
     profile: [],
@@ -57,10 +57,10 @@ export default class ApproveAndReject extends Component {
       ],
     );
   fetchUsers = () => {
-    getAllCompanies().then(data => {
-      console.log('in class', data);
-      this.setState({profile: data});
-    });
+    const { members } = this.props;
+    console.log(members.members);
+      this.setState({profile: members.members,});
+    
   };
   componentDidMount() {
     this.fetchUsers();
@@ -254,3 +254,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
 });
+const mapStateToProps = (state) => ({
+ 
+  members: state.members,
+});
+export default connect(mapStateToProps)(ApproveAndReject);
