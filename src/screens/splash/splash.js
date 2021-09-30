@@ -19,6 +19,7 @@ class ImageLoader extends Component {
   async componentDidMount() {
     // getProfile();
     // getAllUsers();
+    getProfile();
     getComplain();
     getAllCompanies();
     getAllMeetings();

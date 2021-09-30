@@ -14,10 +14,10 @@ import Dashboard from '../screens/Dashboard/Dashboard';
 import Meeting from '../screens/MeetingRoom/Meeting';
 import Complain from '../screens/Complain portal/Complain';
 import Chat from '../screens/Chat/Chat';
-import Profile from '../screens/Profile/Profile';
+import addLocationMeeting from '../screens/AddLocationMeeting/addLocationMeeting';
 import viewDetail from '../screens/Complain portal/viewDetail';
 import ApproveAndReject from '../screens/ApprovendReject/ApproveAndReject';
-import ComplainCompany from '../screens/Complain portal/companyList'
+import ComplainCompany from '../screens/Complain portal/companyList';
 
 const Stack = createStackNavigator();
 const RootNavigator = () => {
@@ -68,10 +68,10 @@ const RootNavigator = () => {
         }}
       />
       <Stack.Screen
-        name="Profile"
-        component={Profile}
+        name="Add Location/Meeting"
+        component={addLocationMeeting}
         options={{
-          headerTitleAlign: "center ",
+          headerTitleAlign: 'center ',
           headerShown: true,
         }}
       />
@@ -85,19 +85,17 @@ const RootNavigator = () => {
       <Stack.Screen
         name="viewDetails"
         component={viewDetail}
-        options={{ 
-          
+        options={{
           headerShown: true,
         }}
       />
       <Stack.Screen
-      name="complainCompany"
-      component={ComplainCompany}
-      options={{ 
-        
-        headerShown: false,
-      }}
-    />
+        name="complainCompany"
+        component={ComplainCompany}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 };

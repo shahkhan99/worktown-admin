@@ -90,9 +90,12 @@ class Meeting extends Component {
   };
 
   fetchProfile = () => {
+    const { name } = this.props
+  
       let a = [];
-    getProfile().then((data) => {
-      a.push(data);
+    
+      a.push(name.name);
+    
       a.forEach((element) => {
         this.setState({
           userName: element.name,
@@ -100,24 +103,23 @@ class Meeting extends Component {
           userCompany: element.companyName,
         });
       });
-    });
   };
 
-  fetchMeetings = () => {
-    const date = [];
-    getAllMeetings().then((data) => {
-      Object.keys(data).forEach((d) => {
-        date.push(d);
-      });
-      date.sort((a, b) => {
-        var dateA = new Date(a);
-        var dateB = new Date(b);
-        return dateA - dateB;
-      });
-      this.setState({meetingDate: date, meetingSlot: data});
-    });
+  // fetchMeetings = () => {
+  //   const date = [];
+  //   getAllMeetings().then((data) => {
+  //     Object.keys(data).forEach((d) => {
+  //       date.push(d);
+  //     });
+  //     date.sort((a, b) => {
+  //       var dateA = new Date(a);
+  //       var dateB = new Date(b);
+  //       return dateA - dateB;
+  //     });
+  //     this.setState({meetingDate: date, meetingSlot: data});
+  //   });
 
-  };
+  // };
 
   bookSlot = () => {
     const {
@@ -155,7 +157,8 @@ class Meeting extends Component {
   };
 
  componentDidMount(){
-   this.fetchmeeting()
+   this.fetchProfile();
+  //  this.fetchmeeting()
  }
   onOpenBottomSheetHandler = index => {
     this.refs.bottomSheetRef.snapTo(index);
@@ -287,12 +290,11 @@ class Meeting extends Component {
       </TouchableOpacity>
     </View>
   );
-  componentDidMount() {
-    console.log(this.drawerCallbackNode);
-    this.fetchMeetings()
-  }
+
 
   render() {
+    console.log(`${this.state.userName}  ${this.state.companyImage}  ${this.state.userCompany}`)
+
     const date = [];
     const {meetings} = this.props;
     if (meetings.meetings != null) {
@@ -487,76 +489,92 @@ class Meeting extends Component {
                 </ScrollView>
               </DialogContent>
             </Dialog>
-            {/* Date Dialog */}
-            <Dialog
-              visible={this.state.visDate}
-              dialogTitle={<DialogTitle title="Pick Date" />}
-              animationDuration={400}
-              dialogAnimation={
-                new ScaleAnimation({
-                  initialValue: 0, // optional
-                  useNativeDriver: true,
-                })
+           {/* Date Dialog */}
+        <Dialog
+          visible={this.state.visDate}
+          dialogTitle={<DialogTitle title="Pick Date" />}
+          animationDuration={400}
+          dialogAnimation={
+            new ScaleAnimation({
+              initialValue: 0, // optional
+              useNativeDriver: true,
+            })
+          }
+          onTouchOutside={() => {
+            this.setState({visDate: false, date: ''});
+          }}
+          footer={
+            <DialogFooter>
+              <DialogButton
+                textStyle={{color: '#6B3590'}}
+                text="CANCEL"
+                onPress={() => {
+                  this.setState({visDate: false, date: ''});
+                }}
+              />
+              <DialogButton
+                textStyle={{color: '#6B3590'}}
+                text="OK"
+                onPress={() => {
+                  this.setState({
+                    visDate: false,
+                    date: Moment(this.state.currentDate).format('DD-MMMM-YYYY'),
+                  });
+                }}
+              />
+            </DialogFooter>
+          }>
+          <DialogContent>
+            {/* <DatePicker
+              style={{width: 250}}
+              date={this.state.currentDate}
+              mode="date"
+              placeholder="Select Day"
+              format="YYYY-MM-DD"
+              minimumDate={new Date()}
+              maximumDate={
+                new Date(new Date().setDate(new Date().getDate() + 30))
               }
-              onTouchOutside={() => {
-                this.setState({visDate: false, date: ''});
+              confirmBtnText="Confirm"
+              cancelBtnText="Cancel"
+              customStyles={{
+                dateIcon: {
+                  position: 'absolute',
+                  left: 0,
+                  top: 4,
+                  marginLeft: 0,
+                },
+                dateInput: {
+                  marginLeft: 36,
+                },
+                // ... You can check the source to find the other keys.
               }}
-              footer={
-                <DialogFooter>
-                  <DialogButton
-                    textStyle={{color: '#6B3590'}}
-                    text="CANCEL"
-                    onPress={() => {
-                      this.setState({visDate: false, date: ''});
-                    }}
-                  />
-                  <DialogButton
-                    textStyle={{color: '#6B3590'}}
-                    text="OK"
-                    onPress={() => {
-                      this.setState({
-                        visDate: false,
-                        date: Moment(this.state.currentDate).format(
-                          'DD-MMMM-YYYY',
-                        ),
-                      });
-                    }}
-                  />
-                </DialogFooter>
-              }>
-              <DialogContent>
-                <DatePicker
-                  style={{width: 250}}
-                  date={this.state.currentDate}
-                  mode="date"
-                  placeholder="Select Day"
-                  format="YYYY-MM-DD"
-                  minimumDate={new Date()}
-                  maximumDate={
-                    new Date(new Date().setDate(new Date().getDate() + 1))
-                  }
-                  confirmBtnText="Confirm"
-                  cancelBtnText="Cancel"
-                  customStyles={{
-                    dateIcon: {
-                      position: 'absolute',
-                      left: 0,
-                      top: 4,
-                      marginLeft: 0,
-                    },
-                    dateInput: {
-                      marginLeft: 36,
-                    },
-                    // ... You can check the source to find the other keys.
-                  }}
-                  onDateChange={(date) => {
-                    this.setState({
-                      currentDate: date,
-                    });
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+              onDateChange={date => {
+                this.setState({
+                  currentDate: date,
+                });
+              }}
+            /> */}
+               <CalendarList
+                        titleText={'Select Date'}
+                        minDate={new Date()}
+                        maxDate={new Date(new Date().setDate(new Date().getDate() + 30))}
+                        cancel={() => this.setState({visDate: false})}
+                        selectedDateMarkType={'circle'}
+                        selectedDateMarkColor={'red'}
+                        selectedDateMarkRangeColor={'orange'}
+                        headerTitleType={2}
+                        confirm={data => {
+                            this.setState({
+                                startDate: data[0],
+                                endDate:data[1],
+                                visDate: false,
+                            });
+                            console.log(this.state.startDate,'dateeeee');
+                        }}
+                    />
+          </DialogContent>
+        </Dialog>
             {/* Start Time */}
             <Dialog
               visible={this.state.visSTime}

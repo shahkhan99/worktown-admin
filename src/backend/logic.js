@@ -8,8 +8,9 @@ import Toast from 'react-native-simple-toast';
 import {AsyncStorage} from 'react-native';
 import { configureStore } from '../redux/store/userStore';
 import {getMeetings} from '../redux/actions/meetingAction'
-import {getComplains} from '../redux/actions/complainAction'
 import {getMember} from '../redux/actions/membersAction';
+import {getName} from '../redux/actions/userName';
+import {getComplains} from '../redux/actions/complainAction'
 
 export var uid = null;
 export var email = null;
@@ -140,7 +141,7 @@ export const getProfile = async () => {
       .database()
       .ref(`admins/${uid}`)
       .on('value', (snapShot) => {
-        resolve(snapShot.val());
+        configureStore.dispatch(getName(snapShot.val()))
       });
   });
 };

@@ -52,6 +52,7 @@ adminReply(){
       [inputName]: inputValue, // <-- Put square brackets
     }));
   };
+  
 componentDidMount(){
   const {com,getComplain} = this.props.route.params;
   console.log(getComplain);
