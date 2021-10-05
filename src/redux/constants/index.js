@@ -4,5 +4,4 @@ export const COMPLAIN_LIST = 'COMPLAIN_LIST';
 export const MEETING_LIST = 'MEETING_LIST';
 //Here
 export const COMMUNITY_CHAT = 'COMMUNITY_CHAT';
-
-
+export const LOCATION_LIST = 'LOCATION_LIST';

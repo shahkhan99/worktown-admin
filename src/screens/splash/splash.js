@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Animated, Text, TouchableOpacity,AsyncStorage} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Animated,
+  Text,
+  TouchableOpacity,
+  AsyncStorage,
+} from 'react-native';
 import {withNavigation} from 'react-navigation';
 import {
   getProfile,
@@ -7,6 +14,7 @@ import {
   getComplain,
   getAllCompanies,
   getAllMeetings,
+  getAllLocation,
 } from '../../backend/logic';
 
 class ImageLoader extends Component {
@@ -19,6 +27,7 @@ class ImageLoader extends Component {
   async componentDidMount() {
     // getProfile();
     // getAllUsers();
+    getAllLocation();
     getProfile();
     getComplain();
     getAllCompanies();
@@ -27,10 +36,8 @@ class ImageLoader extends Component {
       const user = await AsyncStorage.getItem('uid');
 
       user
-      
         ? this.props.navigation.navigate('Dashboard')
-        : this.props.navigation.navigate('Login')
-
+        : this.props.navigation.navigate('Login');
     }, 2000);
   }
 

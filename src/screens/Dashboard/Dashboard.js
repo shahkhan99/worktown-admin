@@ -42,7 +42,7 @@ export default class Dashboard extends Component {
           <TouchableOpacity
             style={styles.yellowBox}
             onPress={() => {
-              this.props.navigation.navigate('AddLM');
+              this.props.navigation.navigate('Add Location/Meeting');
             }}>
             <Text style={styles.boxText}>Add Location/Meeting Room</Text>
           </TouchableOpacity>

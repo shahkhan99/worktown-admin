@@ -6,11 +6,12 @@ import {
 import firebase from './config';
 import Toast from 'react-native-simple-toast';
 import {AsyncStorage} from 'react-native';
-import { configureStore } from '../redux/store/userStore';
-import {getMeetings} from '../redux/actions/meetingAction'
+import {configureStore} from '../redux/store/userStore';
+import {getMeetings} from '../redux/actions/meetingAction';
 import {getMember} from '../redux/actions/membersAction';
 import {getName} from '../redux/actions/userName';
-import {getComplains} from '../redux/actions/complainAction'
+import {getComplains} from '../redux/actions/complainAction';
+import {getLocations} from '../redux/actions/locationAction';
 
 export var uid = null;
 export var email = null;
@@ -101,7 +102,7 @@ export var email = null;
 
 // // ----------------------------- Manual Registration -------------------------------
 
-export let handleLogin = async (email,password, ctx) => {
+export let handleLogin = async (email, password, ctx) => {
   //alert(data.email + ',' + data.password);
   // Toast.show(' state')
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -111,24 +112,23 @@ export let handleLogin = async (email,password, ctx) => {
   } else if (!re) {
     Toast.show('Invalid Email Address.', Toast.LONG);
   } else {
-  firebase
+    firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(async success => {
-       
         uid = success.user.uid;
         await AsyncStorage.setItem('uid', uid);
 
         Promise.all([
           Toast.show('Sign In Successful', Toast.LONG),
           ctx.navigate('Dashboard'),
-        ])
-      }).catch((error)=>{
-        
+        ]);
+      })
+      .catch(error => {
         Toast.show(error.message, Toast.LONG);
         console.log(error.message);
-      })}
-      
+      });
+  }
 };
 export const getProfile = async () => {
   const uid = await AsyncStorage.getItem('uid');
@@ -140,8 +140,8 @@ export const getProfile = async () => {
     firebase
       .database()
       .ref(`admins/${uid}`)
-      .on('value', (snapShot) => {
-        configureStore.dispatch(getName(snapShot.val()))
+      .on('value', snapShot => {
+        configureStore.dispatch(getName(snapShot.val()));
       });
   });
 };
@@ -195,7 +195,7 @@ export const getAllCompanies = () => {
     let arr = [];
     let temp;
     firebase
-      .database() 
+      .database()
       .ref('users/')
       .on('value', snapShot => {
         snapShot.forEach(e => {
@@ -206,7 +206,7 @@ export const getAllCompanies = () => {
           }
         });
       });
-    configureStore.dispatch(getMember(arr))
+    configureStore.dispatch(getMember(arr));
   });
 
   //   const val = firebase
@@ -261,10 +261,10 @@ export const updateApproval = (state, uid, ctx) => {
 // };
 // ------------------------- Community chat --------------------------------
 
-export const sendCommunityMessage = (message) => {
-  message.forEach((item) => {
+export const sendCommunityMessage = message => {
+  message.forEach(item => {
     const messages = {
-      pin:'-',
+      pin: '-',
       text: item.text,
       timestamp: firebase.database.ServerValue.TIMESTAMP,
       user: item.user,
@@ -275,7 +275,7 @@ export const sendCommunityMessage = (message) => {
   });
 };
 
-parse = (messages) => {
+parse = messages => {
   const {user, text, timestamp} = messages.val();
   const {key: _id} = messages;
   const createdAt = new Date(timestamp);
@@ -286,18 +286,18 @@ parse = (messages) => {
     user,
   };
 };
-export const getCommunityMessages = (callback) => {
+export const getCommunityMessages = callback => {
   firebase
     .database()
     .ref('communityChats')
-    .on('child_added', (snapshot) => callback(parse(snapshot)));
+    .on('child_added', snapshot => callback(parse(snapshot)));
 };
 export const offRef = () => {
   firebase.database().ref('communityChats').off();
 };
 // // -------------------- Meeting Functions ---------------------------------
 
-parseTime = (s) => {
+parseTime = s => {
   var part = s.match(/(\d+):(\d+)(?: )?(am|pm)?/i);
   var hh = parseInt(part[1], 10);
   var mm = parseInt(part[2], 10);
@@ -332,28 +332,24 @@ export const setMeetingSlot = (slot, ctx) => {
           'End Time should be select after the Start Time',
           Toast.LONG,
         );
-      } 
-      else {
-       
-              firebase
-                .database()
-                .ref(`allMeetings/${new Date(date)}`)
-                .push(slot)
-                .then((success) => {
-                  ctx.setState({fabHide: true});
-                  ctx.onOpenBottomSheetHandler(2);
-                  Toast.show('Your meeting has been book');
-                })
-                .catch((e) => Toast.show('Some Thing Went Wrong', e));
-            
-    
+      } else {
+        firebase
+          .database()
+          .ref(`allMeetings/${new Date(date)}`)
+          .push(slot)
+          .then(success => {
+            ctx.setState({fabHide: true});
+            ctx.onOpenBottomSheetHandler(2);
+            Toast.show('Your meeting has been book');
+          })
+          .catch(e => Toast.show('Some Thing Went Wrong', e));
       }
     }
   });
 };
 
 export const getAllMeetings = () => {
-  const addMeeting = (user) => configureStore.dispatch(getMeetings(user));
+  const addMeeting = user => configureStore.dispatch(getMeetings(user));
   return new Promise((resolve, reject) => {
     let arr = [];
     let key = [];
@@ -361,19 +357,16 @@ export const getAllMeetings = () => {
       .database()
       .ref('allMeetings/')
       .orderByKey()
-      .on('value', (snapShot) => {
+      .on('value', snapShot => {
         addMeeting(snapShot.val());
-        
+
         // arr.push(snapShot.val());
       });
     // console.log(arr, key, 'adsjfj');
   });
 };
 
-
-
 // // ------------------------------ Profile Functios ----------------------------
-
 
 export const getProfileuser = async () => {
   const uid = await AsyncStorage.getItem('uid');
@@ -385,7 +378,7 @@ export const getProfileuser = async () => {
     firebase
       .database()
       .ref(`admins/${uid}`)
-      .on('value', (snapShot) => {
+      .on('value', snapShot => {
         resolve(snapShot.val());
       });
   });
@@ -489,7 +482,7 @@ export const getProfileuser = async () => {
 //     });
 //   }
 // };
-export const setComplain = async (complain) => {
+export const setComplain = async complain => {
   const uid = await AsyncStorage.getItem('uid');
   const id = getRandomString(7);
   return new Promise((resolve, reject) => {
@@ -509,7 +502,7 @@ export const setComplain = async (complain) => {
       UploadComplainImage({
         Files: imgArr,
         name: uid,
-      }).then((ImgURLs) => {
+      }).then(ImgURLs => {
         complain.complainImage = ImgURLs;
         const ref = firebase
           .database()
@@ -525,57 +518,104 @@ export const setComplain = async (complain) => {
 
 export const getComplain = async () => {
   const uid = await AsyncStorage.getItem('uid');
-  let arr=[]
+  let arr = [];
   return new Promise((resolve, reject) => {
-    
-    firebase
-    .database()
-      .ref(`allComplain/`)
-      .orderByChild('createdOn')
-      .on('value', (snapShot) => {
-        if(snapShot.exists()){
-          snapShot.forEach((c) => {
-            c.forEach((co)=>{   
-              arr.push(co.val());
-            }
-            )
-          });
-        }
-        
-      });
-      arr.reverse();
-   configureStore.dispatch(getComplains(arr));
-     
-  });
-};
-
-export const complainReply=(rep,ctx)=>{
-  console.log(rep.ticketID);
-if(rep.reply=='' || rep.reply=='-'){
-  Toast.show('All field are reduired')
-}
-else{
-  let time=new Date()
     firebase
       .database()
       .ref(`allComplain/`)
       .orderByChild('createdOn')
-      .once('value', (snapShot) => {
-          snapShot.forEach((c) => {
-          c.forEach((co)=>{   
-            if(co.val().key==rep.ticketID)
-            {
-              firebase.database().ref(`allComplain/${c.key}/${rep.ticketID}/adminReply`).update({reply:rep.reply,complainStatus:rep.titleLable,replyOn:time}).then(()=>
-              {
-                ctx.setState({spiner:false,visible:false,titleLable:''})
-                ctx.props.navigation.navigate('Complain')
-                ctx.props.route.params.getComplain()
-              })
-            }
-          }
-)
+      .on('value', snapShot => {
+        if (snapShot.exists()) {
+          snapShot.forEach(c => {
+            c.forEach(co => {
+              arr.push(co.val());
+            });
           });
-        
-      });}
-   
-}
+        }
+      });
+    arr.reverse();
+    configureStore.dispatch(getComplains(arr));
+  });
+};
+
+export const complainReply = (rep, ctx) => {
+  console.log(rep.ticketID);
+  if (rep.reply == '' || rep.reply == '-') {
+    Toast.show('All field are reduired');
+  } else {
+    let time = new Date();
+    firebase
+      .database()
+      .ref(`allComplain/`)
+      .orderByChild('createdOn')
+      .once('value', snapShot => {
+        snapShot.forEach(c => {
+          c.forEach(co => {
+            if (co.val().key == rep.ticketID) {
+              firebase
+                .database()
+                .ref(`allComplain/${c.key}/${rep.ticketID}/adminReply`)
+                .update({
+                  reply: rep.reply,
+                  complainStatus: rep.titleLable,
+                  replyOn: time,
+                })
+                .then(() => {
+                  ctx.setState({spiner: false, visible: false, titleLable: ''});
+                  ctx.props.navigation.navigate('Complain');
+                  ctx.props.route.params.getComplain();
+                });
+            }
+          });
+        });
+      });
+  }
+};
+
+// ------------------------------------ Location ----------------------------------------\
+
+export const addNewLocation = (location, setmodalOneActive) => {
+  if (!location) {
+    Toast.show('Location must not be empty');
+  } else {
+    firebase
+      .database()
+      .ref('allLocations')
+      .push({name: location})
+      .then(() => {
+        Toast.show('Location has been added');
+        setmodalOneActive(false);
+      });
+  }
+};
+
+export const getAllLocation = async () => {
+  return new Promise((resolve, reject) => {
+    console.log(uid);
+    let arr = [];
+
+    firebase
+      .database()
+      .ref(`allLocations`)
+      .on('value', snapShot => {
+        snapShot.forEach(val => {
+          arr.push(val.val().name);
+        });
+        configureStore.dispatch(getLocations(arr));
+      });
+  });
+};
+export const addNewMeetingRoom = (meetingRoom, setmodalTwoActive) => {
+  if (!meetingRoom) {
+    Toast.show('Meeting must not be empty');
+  } else {
+    firebase
+      .database()
+      .ref('meetingRoom')
+      .push(meetingRoom)
+      .then(() => {
+        Toast.show('Meetng has been added');
+        setmodalTwoActive(false);
+      });
+  }
+};
